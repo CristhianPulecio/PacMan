@@ -71,8 +71,11 @@ public class Servidor {
             while (true) {
                 Socket socketCliente = serverSocket.accept();
 
-                if (validarCliente(socketCliente)) {
-                    ThreadServidor hilo = new ThreadServidor(socketCliente);
+                String usuario = validarCliente(socketCliente);
+
+                if (usuario != null) {
+                    // PASA EL USUARIO Y EL CONTROL DE CONEXIÓN
+                    ThreadServidor hilo = new ThreadServidor(socketCliente, controlConexion, usuario);
                     hilo.start();
                 } else {
                     socketCliente.close();
@@ -80,8 +83,7 @@ public class Servidor {
             }
 
         } catch (IOException e) {
-            // No se imprime nada; se suprime cualquier salida al exterior.
-            // Si desea, luego podemos agregar un logger interno o un observador.
+            // Sin impresión
         }
     }
 
@@ -91,7 +93,7 @@ public class Servidor {
      * @param socketCliente socket por donde llegan las credenciales
      * @return true si las credenciales son correctas, false en caso contrario
      */
-    private boolean validarCliente(Socket socketCliente) {
+    private String validarCliente(Socket socketCliente) {
         try {
             var entrada = socketCliente.getInputStream();
             var salida = socketCliente.getOutputStream();
@@ -108,14 +110,14 @@ public class Servidor {
 
             if (valido) {
                 salida.write("OK".getBytes());
-                return true;
+                return usuario;
             } else {
                 salida.write("DENEGADO".getBytes());
-                return false;
+                return null;
             }
 
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 

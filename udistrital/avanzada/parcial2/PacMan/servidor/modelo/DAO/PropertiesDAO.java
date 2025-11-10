@@ -101,5 +101,13 @@ public class PropertiesDAO {
     public String obtenerUrlBaseDatos() {
         return conexionProperties.getProperty("db_url");
     }
+    
+    public String obtenerUsuarioBaseDatos() {
+        return conexionProperties.getProperty("usuarioBD");
+    }
+    
+    public String obtenerContrasenaBaseDatos() {
+        return conexionProperties.getProperty("contrasenaBD");
+    }
 }
 

@@ -67,7 +67,9 @@ public class ControlConexion {
 
         // 3. Crear conexión a la base de datos usando URL del properties
         String urlBD = propertiesDAO.obtenerUrlBaseDatos();
-        this.conexionBaseDatos = new ConexionBaseDatos(urlBD);
+        String usuario = propertiesDAO.obtenerUsuarioBaseDatos();
+        String contrasena = propertiesDAO.obtenerContrasenaBaseDatos();
+        this.conexionBaseDatos = new ConexionBaseDatos(urlBD, usuario, contrasena);
 
         // 4. Crear DAO de base de datos
         this.baseDatosDAO = new BaseDatosDAO(conexionBaseDatos);

@@ -63,10 +63,10 @@ public class ControlJuego {
      */
     public void moverArriba() {
         if (controlVista.moverArriba()) {
-            estado = "OK";
+            estado = "MOVIMIENTO HACIA ARRIBA HECHO";
             verificarFruta();
         } else {
-            estado = "LIMITE_VENTANA";
+            estado = "LIMITE DE LA VENTANA";
         }
     }
 
@@ -75,10 +75,10 @@ public class ControlJuego {
      */
     public void moverAbajo() {
         if (controlVista.moverAbajo()) {
-            estado = "OK";
+            estado = "MOVIMIENTO HACIA ABAJO HECHO";
             verificarFruta();
         } else {
-            estado = "LIMITE_VENTANA";
+            estado = "LIMITE DE LA VENTANA";
         }
     }
 
@@ -87,10 +87,10 @@ public class ControlJuego {
      */
     public void moverIzquierda() {
         if (controlVista.moverIzquierda()) {
-            estado = "OK";
+            estado = "MOVIMIENTO A LA IZQUIERDA HECHO";
             verificarFruta();
         } else {
-            estado = "LIMITE_VENTANA";
+            estado = "LIMITE DE LA VENTANA";
         }
     }
 
@@ -99,10 +99,10 @@ public class ControlJuego {
      */
     public void moverDerecha() {
         if (controlVista.moverDerecha()) {
-            estado = "OK";
+            estado = "MOVIMIENTO A LA DERECHA HECHO";
             verificarFruta();
         } else {
-            estado = "LIMITE_VENTANA";
+            estado = "LIMITE DE LA VENTANA";
         }
     }
 
@@ -152,5 +152,6 @@ public class ControlJuego {
         tiempoFinal = System.currentTimeMillis();
         return tiempoFinal - tiempoInicio;
     }
+    
 }
 

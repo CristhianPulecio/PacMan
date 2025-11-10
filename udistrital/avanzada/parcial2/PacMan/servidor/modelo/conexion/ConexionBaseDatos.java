@@ -41,10 +41,10 @@ public class ConexionBaseDatos {
      * 
      * @param contrasena Contraseña del usuario.
      */
-    public ConexionBaseDatos(String url) {
+    public ConexionBaseDatos(String url, String usuario, String contrasena) {
         this.url = url;
-        this.usuario = "root";
-        this.contrasena = "";
+        this.usuario = usuario;
+        this.contrasena = contrasena;
     }
 
     /**

@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO.BaseDatosDAO;
+
 
 /**
  * Hilo encargado de atender a un cliente individual del juego Pac-Man.
@@ -35,15 +35,24 @@ public class ThreadServidor extends Thread {
 
     /** Controlador independiente del juego para este cliente. */
     private final ControlJuego controlJuego;
+    
+    private final ControlConexion controlConexion;
+    
+    private final String usuario;
 
     /**
      * Crea un hilo para manejar la comunicación con un cliente ya validado.
      *
      * @param socketCliente socket utilizado para comunicarse con el cliente
-     * @param baseDatosDAO acceso a la BD si se requiere más adelante
+     * 
      */
-    public ThreadServidor(Socket socketCliente) {
+    public ThreadServidor(Socket socketCliente, ControlConexion controlConexion, 
+            String usuario) {
         this.socketCliente = socketCliente;
+        
+        this.controlConexion = controlConexion;
+        
+        this.usuario = usuario;
 
         // Cada jugador tiene su propio controlador de juego
         this.controlJuego = new ControlJuego();
@@ -75,44 +84,34 @@ public class ThreadServidor extends Thread {
                 String comando = entrada.readUTF().trim();
 
                 switch (comando.toUpperCase()) {
-                    case "ARRIBA":
-                        controlJuego.moverArriba();
-                        break;
-
-                    case "ABAJO":
-                        controlJuego.moverAbajo();
-                        break;
-
-                    case "IZQUIERDA":
-                        controlJuego.moverIzquierda();
-                        break;
-
-                    case "DERECHA":
-                        controlJuego.moverDerecha();
-                        break;
-
-                    case "SALIR":
-                        salida.writeUTF("FIN");
-                        return;
-
+                    case "ARRIBA":    controlJuego.moverArriba(); break;
+                    case "ABAJO":     controlJuego.moverAbajo(); break;
+                    case "IZQUIERDA": controlJuego.moverIzquierda(); break;
+                    case "DERECHA":   controlJuego.moverDerecha(); break;
+                    case "SALIR":     salida.writeUTF("FIN"); return;
                     default:
                         salida.writeUTF("COMANDO_INVALIDO");
-                        break;
+                        continue;
                 }
 
-                // Después de mover, informar al cliente si el movimiento fue válido o no
                 salida.writeUTF(controlJuego.getEstadoMovimiento());
 
-                // Si el juego terminó (encontró las 4 frutas)
                 if (controlJuego.juegoTerminado()) {
+
+                    int puntaje = controlJuego.getPuntajeFinal();
+                    long tiempo = controlJuego.getTiempoTotal();
+
                     salida.writeUTF("JUEGO_TERMINADO");
-                    salida.writeInt(controlJuego.getPuntajeFinal());
-                    salida.writeLong(controlJuego.getTiempoTotal());
+                    salida.writeInt(puntaje);
+                    salida.writeLong(tiempo);
+
+                    // GUARDAR RESULTADO EN ARCHIVO ALEATORIO
+                    controlConexion.guardarResultadoEnAleatorio(usuario, puntaje, tiempo);
+
                     return;
                 }
 
             } catch (IOException e) {
-                // Cliente desconectado o error; salir del hilo sin imprimir
                 return;
             }
         }
