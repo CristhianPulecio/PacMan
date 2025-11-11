@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionSocketServer;
 
 
 /**
@@ -39,6 +40,8 @@ public class ThreadServidor extends Thread {
     private final ControlConexion controlConexion;
     
     private final String usuario;
+    
+    private ConexionSocketServer conexionSocket;
 
     /**
      * Crea un hilo para manejar la comunicación con un cliente ya validado.
@@ -49,26 +52,36 @@ public class ThreadServidor extends Thread {
     public ThreadServidor(Socket socketCliente, ControlConexion controlConexion, 
             String usuario) {
         this.socketCliente = socketCliente;
-        
         this.controlConexion = controlConexion;
-        
         this.usuario = usuario;
 
-        // Cada jugador tiene su propio controlador de juego
-        this.controlJuego = new ControlJuego();
+        this.controlJuego = new ControlJuego(controlConexion, usuario);
+
+        controlJuego.setOnJuegoTerminado(() -> {
+            try {
+                if (salida != null) {
+                    salida.writeUTF("FIN");
+                }
+            } catch (IOException e) {
+            }
+        });
+
     }
 
     @Override
     public void run() {
         try {
-            entrada = new DataInputStream(socketCliente.getInputStream());
-            salida = new DataOutputStream(socketCliente.getOutputStream());
+            conexionSocket = new ConexionSocketServer(socketCliente);
+
+            entrada = new DataInputStream(conexionSocket.getInputStream());
+            salida  = new DataOutputStream(conexionSocket.getOutputStream());
 
             escucharMovimientos();
 
         } catch (IOException e) {
-            // No imprimir nada
+            // Sin impresión
         } finally {
+            if (conexionSocket != null) conexionSocket.cerrar();
             cerrarConexion();
         }
     }
@@ -90,7 +103,7 @@ public class ThreadServidor extends Thread {
                     case "DERECHA":   controlJuego.moverDerecha(); break;
                     case "SALIR":     salida.writeUTF("FIN"); return;
                     default:
-                        salida.writeUTF("COMANDO_INVALIDO");
+                        salida.writeUTF("COMANDO INVALIDO");
                         continue;
                 }
 
@@ -101,7 +114,7 @@ public class ThreadServidor extends Thread {
                     int puntaje = controlJuego.getPuntajeFinal();
                     long tiempo = controlJuego.getTiempoTotal();
 
-                    salida.writeUTF("JUEGO_TERMINADO");
+                    salida.writeUTF("JUEGO TERMINADO");
                     salida.writeInt(puntaje);
                     salida.writeLong(tiempo);
 

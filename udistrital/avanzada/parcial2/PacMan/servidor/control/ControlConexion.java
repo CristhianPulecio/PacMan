@@ -13,7 +13,7 @@ import udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO.AleatorioDAO;
 import udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO.BaseDatosDAO;
 import udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO.PropertiesDAO;
 import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionBaseDatos;
-import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionProperties;
+import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionPropertiesServer;
 
 /**
  * ControlConexion
@@ -41,7 +41,7 @@ import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionProp
  */
 public class ControlConexion {
 
-    private final ConexionProperties conexionProperties;
+    private final ConexionPropertiesServer conexionProperties;
     private final PropertiesDAO propertiesDAO;
 
     private final ConexionBaseDatos conexionBaseDatos;
@@ -59,7 +59,7 @@ public class ControlConexion {
     public ControlConexion(File archivoProperties, File archivoAleatorio) throws IOException {
 
         // 1. Cargar archivo properties
-        this.conexionProperties = new ConexionProperties();
+        this.conexionProperties = new ConexionPropertiesServer();
         this.conexionProperties.cargarArchivoProperties(archivoProperties);
 
         // 2. Crear DAO de properties

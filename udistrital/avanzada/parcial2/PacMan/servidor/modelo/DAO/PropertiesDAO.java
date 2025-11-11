@@ -6,7 +6,7 @@ package udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO;
 
 import java.util.ArrayList;
 import java.util.List;
-import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionProperties;
+import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionPropertiesServer;
 
 /**
  * DAO encargado de leer información desde un archivo de propiedades.
@@ -37,14 +37,14 @@ import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionProp
 public class PropertiesDAO {
 
     /** Referencia al loader de propiedades. */
-    private final ConexionProperties conexionProperties;
+    private final ConexionPropertiesServer conexionProperties;
 
     /**
      * Constructor del DAO.
      *
      * @param conexionProperties instancia ya cargada con el archivo .properties.
      */
-    public PropertiesDAO(ConexionProperties conexionProperties) {
+    public PropertiesDAO(ConexionPropertiesServer conexionProperties) {
         this.conexionProperties = conexionProperties;
     }
 

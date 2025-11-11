@@ -8,24 +8,11 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import javax.swing.ImageIcon;
 
-/**
- * ControlVista:
- * Encargado de:
- *  - Gestionar visualmente Pac-Man
- *  - Crear frutas aleatorias con imagen y puntaje
- *  - Detectar colisiones
- *  - Proveer el listener de salida
- *
- * No crea GUI ni botones.
- * No imprime.
- *
- * La Vista usa los getters para pintar.
- *
- * author USER
- */
 public class ControlVista {
 
     private final int anchoPanel;
@@ -37,7 +24,8 @@ public class ControlVista {
 
     private Image imgPacman;
 
-    private Fruta[] frutas;
+    /** Ahora es un array de Map<String,Object> en lugar de Fruta[] */
+    private Map<String,Object>[] frutas;
 
     private Image imgCereza;
     private Image imgFresa;
@@ -51,6 +39,7 @@ public class ControlVista {
     private final Random random = new Random();
 
     private final ActionListener salirListener;
+    private Runnable callbackSalida;
 
     public ControlVista(int anchoPanel, int altoPanel) {
         this.anchoPanel = anchoPanel;
@@ -62,7 +51,9 @@ public class ControlVista {
         this.salirListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                procesarSalidaServidor();
+                if (callbackSalida != null) {
+                    callbackSalida.run();
+                }
             }
         };
     }
@@ -77,7 +68,6 @@ public class ControlVista {
 
     private void cargarImagenes() {
         imgPacman = new ImageIcon("imagenes/pacman.png").getImage();
-
         imgCereza = new ImageIcon("imagenes/cereza.png").getImage();
         imgFresa = new ImageIcon("imagenes/fresa.png").getImage();
         imgNaranja = new ImageIcon("imagenes/naranja.png").getImage();
@@ -89,7 +79,7 @@ public class ControlVista {
     }
 
     /* =========================================================
-       UBICACIÓN Y MOVIMIENTOS
+       UBICACIÓN Y MOVIMIENTO
        ========================================================= */
 
     public void ubicarPacManEnCentro() {
@@ -98,11 +88,11 @@ public class ControlVista {
     }
 
     private void generarFrutasAleatorias() {
-        frutas = new Fruta[4];
+        frutas = new Map[4];
 
         String[] tipos = {
-            "CEREZA", "FRESA", "NARANJA", "MANZANA",
-            "MELON", "GALAXIAN", "CAMPANA", "LLAVE"
+            "CEREZA","FRESA","NARANJA","MANZANA",
+            "MELON","GALAXIAN","CAMPANA","LLAVE"
         };
 
         for (int i = 0; i < frutas.length; i++) {
@@ -110,7 +100,14 @@ public class ControlVista {
             int fx = random.nextInt(anchoPanel - TAM);
             int fy = random.nextInt(altoPanel - TAM);
 
-            frutas[i] = new Fruta(tipo, fx, fy, obtenerImagenFruta(tipo), obtenerPuntajeFruta(tipo));
+            Map<String,Object> fruta = new HashMap<>();
+            fruta.put("tipo", tipo);
+            fruta.put("x", fx);
+            fruta.put("y", fy);
+            fruta.put("imagen", obtenerImagenFruta(tipo));
+            fruta.put("valor", obtenerPuntajeFruta(tipo));
+
+            frutas[i] = fruta;
         }
     }
 
@@ -139,25 +136,24 @@ public class ControlVista {
     }
 
     /* =========================================================
-       DETECCIÓN DE FRUTA → RETORNA PUNTAJE
+       DETECCIÓN DE FRUTA
        ========================================================= */
 
-    /**
-     * Detecta si Pac-Man toca una fruta:
-     * - Elimina la fruta
-     * - Retorna su puntaje
-     * 
-     * Si no toca ninguna fruta, retorna 0.
-     */
     public int detectarFruta() {
         Rectangle rPacman = new Rectangle(pacmanX, pacmanY, TAM, TAM);
 
         for (int i = 0; i < frutas.length; i++) {
-            Fruta f = frutas[i];
+
+            Map<String,Object> f = frutas[i];
             if (f != null) {
-                Rectangle rFruta = new Rectangle(f.x, f.y, TAM, TAM);
+
+                int x = (int) f.get("x");
+                int y = (int) f.get("y");
+                int valor = (int) f.get("valor");
+
+                Rectangle rFruta = new Rectangle(x, y, TAM, TAM);
+
                 if (rPacman.intersects(rFruta)) {
-                    int valor = f.valor;
                     frutas[i] = null; // eliminar fruta
                     return valor;
                 }
@@ -167,8 +163,9 @@ public class ControlVista {
     }
 
     /* =========================================================
-       PUNTAJES
+       UTILES
        ========================================================= */
+
     private int obtenerPuntajeFruta(String tipo) {
         switch (tipo) {
             case "CEREZA": return 100;
@@ -201,50 +198,31 @@ public class ControlVista {
        SALIDA DEL SERVIDOR
        ========================================================= */
 
-    public ResultadoJuego procesarSalidaServidor() {
-        return new ResultadoJuego("", 0, 0); 
+    public Map<String,Object> procesarSalidaServidor(String jugador, int puntaje, long tiempo) {
+
+        Map<String,Object> resultado = new HashMap<>();
+        resultado.put("jugador", jugador);
+        resultado.put("puntaje", puntaje);
+        resultado.put("tiempo", tiempo);
+
+        return resultado;
+    }
+
+    public void setCallbackSalida(Runnable r) {
+        this.callbackSalida = r;
     }
 
     /* =========================================================
-       GETTERS PARA VISTA
+       GETTERS
        ========================================================= */
 
     public int getPacmanX() { return pacmanX; }
     public int getPacmanY() { return pacmanY; }
     public Image getImgPacman() { return imgPacman; }
-    public Fruta[] getFrutas() { return frutas; }
+    public Map<String,Object>[] getFrutas() { return frutas; }
     public int getTAM() { return TAM; }
 
-    /* =========================================================
-       CLASES INTERNAS
-       ========================================================= */
-
-    public static class Fruta {
-        public String tipo;
-        public int x, y;
-        public Image imagen;
-        public int valor;
-
-        public Fruta(String tipo, int x, int y, Image imagen, int valor) {
-            this.tipo = tipo;
-            this.x = x;
-            this.y = y;
-            this.imagen = imagen;
-            this.valor = valor;
-        }
-    }
-
-    public static class ResultadoJuego {
-        public final String jugador;
-        public final int puntaje;
-        public final long tiempo;
-
-        public ResultadoJuego(String jugador, int puntaje, long tiempo) {
-            this.jugador = jugador;
-            this.puntaje = puntaje;
-            this.tiempo = tiempo;
-        }
-    }
 }
+
 
 

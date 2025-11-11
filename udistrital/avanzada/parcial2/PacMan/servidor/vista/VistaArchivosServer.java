@@ -23,12 +23,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * author USER
  */
-public class VistaArchivos extends JFrame {
+public class VistaArchivosServer extends JFrame {
 
     private File archivoProperties;
     private File archivoAleatorio;
 
-    public VistaArchivos() {
+    public VistaArchivosServer() {
         // No es necesario mostrar ventana
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

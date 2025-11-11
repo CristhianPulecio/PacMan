@@ -4,63 +4,54 @@
  */
 package udistrital.avanzada.parcial2.PacMan.servidor.control;
 
+import java.io.IOException;
 
 /**
  * Controlador del juego para UN jugador.
  *
- * RESPONSABILIDADES:
- * - Manejar la lógica del juego Pac-Man (modelo-control).
- * - Coordinar con ControlVista para mover el Pac-Man gráficamente.
- * - Detectar límites, sumar puntaje y controlar fin del juego.
- * - Controlar tiempo de juego.
+ * Se actualiza para trabajar correctamente con la nueva versión de ControlVista
+ * que usa Map<String,Object> en lugar de clases internas para frutas y resultados.
  *
- * NO maneja GUI directamente.
- * NO imprime nada.
- * NO usa sockets (eso lo hace ThreadServidor).
+ * No se requiere modificar lógica porque ControlJuego no accede a la fruta, 
+ * solo recibe el puntaje desde controlVista.detectarFruta().
  *
  * author USER
  */
 public class ControlJuego {
 
-    /** Controlador de la vista, encargado de actualizar la posición real del Pac-Man. */
     private ControlVista controlVista;
+    private final ControlConexion controlConexion;
 
-    /** Estado del movimiento después de cada acción (OK, LIMITE, etc.). */
     private String estado;
+    private String usuario;
 
-    /** Puntaje total acumulado. */
     private int puntaje;
-
-    /** Número de frutas encontradas. */
     private int frutasEncontradas;
 
-    /** Cantidad total de frutas para finalizar el juego (4, según requerimiento). */
     private final int TOTAL_FRUTAS = 4;
 
-    /** Tiempo inicial en milisegundos. */
     private long tiempoInicio;
-
-    /** Tiempo final al terminar. */
     private long tiempoFinal;
 
-    /**
-     * Constructor:
-     * Recibe un ControlVista para manipular el Pac-Man en el panel.
-     */
-    public ControlJuego() {
-        controlVista = new ControlVista(1280,720);
-        this.estado = "OK";
-        this.puntaje = 0;
-        this.frutasEncontradas = 0;
+    private Runnable onJuegoTerminado;
+
+    public ControlJuego(ControlConexion controlConexion, String usuario) {
+        this.controlConexion = controlConexion;
+        this.usuario = usuario;
+
+        this.controlVista = new ControlVista(1280, 720);
         this.tiempoInicio = System.currentTimeMillis();
 
-        // Inicializa al Pac-Man en el centro del panel
         controlVista.ubicarPacManEnCentro();
+
+        // Listener cuando se presiona el botón salir
+        controlVista.setCallbackSalida(() -> salir());
     }
 
-    /**
-     * Movimiento hacia arriba.
-     */
+    /* ===============================================
+       MOVIMIENTOS
+       =============================================== */
+
     public void moverArriba() {
         if (controlVista.moverArriba()) {
             estado = "MOVIMIENTO HACIA ARRIBA HECHO";
@@ -70,9 +61,6 @@ public class ControlJuego {
         }
     }
 
-    /**
-     * Movimiento hacia abajo.
-     */
     public void moverAbajo() {
         if (controlVista.moverAbajo()) {
             estado = "MOVIMIENTO HACIA ABAJO HECHO";
@@ -82,9 +70,6 @@ public class ControlJuego {
         }
     }
 
-    /**
-     * Movimiento hacia la izquierda.
-     */
     public void moverIzquierda() {
         if (controlVista.moverIzquierda()) {
             estado = "MOVIMIENTO A LA IZQUIERDA HECHO";
@@ -94,9 +79,6 @@ public class ControlJuego {
         }
     }
 
-    /**
-     * Movimiento hacia la derecha.
-     */
     public void moverDerecha() {
         if (controlVista.moverDerecha()) {
             estado = "MOVIMIENTO A LA DERECHA HECHO";
@@ -106,52 +88,60 @@ public class ControlJuego {
         }
     }
 
-    /**
-     * Revisa si Pac-Man está encima de una fruta.
-     * Si es así:
-     *  - Suma puntaje
-     *  - Elimina fruta de la pantalla
-     *  - Incrementa contador
-     */
+    /* ===============================================
+       DETECCIÓN DE FRUTA
+       =============================================== */
     private void verificarFruta() {
         int valorFruta = controlVista.detectarFruta();
-
         if (valorFruta > 0) {
             puntaje += valorFruta;
             frutasEncontradas++;
         }
     }
 
-    /**
-     * Retorna el estado del movimiento posterior a la última acción.
-     *
-     * @return "OK" o "LIMITE_VENTANA"
-     */
-    public String getEstadoMovimiento() {
-        return estado;
-    }
-
-    /**
-     * Determina si el juego ya terminó (todas las frutas encontradas).
-     */
     public boolean juegoTerminado() {
         return frutasEncontradas >= TOTAL_FRUTAS;
     }
 
-    /**
-     * Retorna el puntaje final acumulado.
-     */
+    public String getEstadoMovimiento() {
+        return estado;
+    }
+
     public int getPuntajeFinal() {
         return puntaje;
     }
 
-    /**
-     * Retorna el tiempo total del juego, en milisegundos.
-     */
     public long getTiempoTotal() {
         tiempoFinal = System.currentTimeMillis();
         return tiempoFinal - tiempoInicio;
     }
-    
+
+    /* ===============================================
+       SALIDA Y REGISTRO EN ARCHIVO ALEATORIO
+       =============================================== */
+
+    private void salir() {
+        try {
+            int puntajeFinal = getPuntajeFinal();
+            long tiempoTotal = getTiempoTotal();
+
+            // Registrar resultado en archivo aleatorio
+            controlConexion.guardarResultadoEnAleatorio(usuario, puntajeFinal, tiempoTotal);
+
+            // CallBack para ThreadServidor
+            if (onJuegoTerminado != null) {
+                onJuegoTerminado.run();
+            }
+
+        } catch (IOException e) {
+            // no imprimir
+        }
+    }
+
+    public void setOnJuegoTerminado(Runnable r) {
+        this.onJuegoTerminado = r;
+    }
+
 }
+
 

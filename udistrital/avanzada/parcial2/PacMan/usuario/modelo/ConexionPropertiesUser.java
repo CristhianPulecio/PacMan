@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion;
+package udistrital.avanzada.parcial2.PacMan.usuario.modelo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,38 +10,41 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Clase responsable únicamente de cargar y gestionar la lectura de un archivo
- * .properties. La ruta del archivo será suministrada por medio de un
- * JFileChooser desde una clase externa.
+ * Clase responsable únicamente de cargar y gestionar la lectura
+ * de un archivo .properties para el lado del USUARIO.
  *
- * Esta clase NO implementa conexión a BD ni sockets; solo gestiona la carga de
- * propiedades solicitadas por el cliente o el servidor.
+ * La ruta del archivo será suministrada mediante un JFileChooser externo.
  *
- * Principio aplicado: SINGLE RESPONSIBILITY (SOLID)
- * 
- * @author Cristhian Pulecio
+ * RESPONSABILIDADES:
+ *  - Cargar el archivo .properties
+ *  - Permitir obtener los valores por clave
+ *  - Limpiar recursos ("cerrar conexión")
+ *
+ * Esta clase NO conecta a BD, NO abre sockets y NO imprime.
+ *
+ * author USER
  */
-public class ConexionProperties {
+public class ConexionPropertiesUser {
 
     /** Objeto que almacena las propiedades cargadas desde el archivo. */
     private Properties properties;
 
-    /** Ruta del archivo properties cargado. */
+    /** Archivo .properties cargado. */
     private File archivo;
 
     /**
-     * Constructor vacío. El archivo será recibido posteriormente mediante el método
-     * cargarArchivoProperties().
+     * Constructor vacío.
+     * El archivo se cargará usando cargarArchivoProperties(File).
      */
-    public ConexionProperties() {
+    public ConexionPropertiesUser() {
         this.properties = new Properties();
     }
 
     /**
      * Carga en memoria el archivo .properties recibido.
      *
-     * @param archivo Archivo seleccionado mediante JFileChooser.
-     * @throws IOException si no es posible leer el archivo o su contenido.
+     * @param archivo archivo seleccionado mediante JFileChooser.
+     * @throws IOException si ocurre error de lectura.
      */
     public void cargarArchivoProperties(File archivo) throws IOException {
         this.archivo = archivo;
@@ -52,10 +55,10 @@ public class ConexionProperties {
     }
 
     /**
-     * Recupera el valor de una clave dentro del archivo properties.
+     * Obtiene el valor asociado a una clave del archivo .properties.
      *
-     * @param clave Nombre de la propiedad.
-     * @return Valor asociado a la clave, o null si no existe.
+     * @param clave clave a consultar.
+     * @return valor encontrado o null si no existe.
      */
     public String getProperty(String clave) {
         if (properties == null) {
@@ -65,8 +68,8 @@ public class ConexionProperties {
     }
 
     /**
-     * Libera la referencia al archivo y limpia las propiedades cargadas.
-     * Esta operación se considera el "cierre de conexión" para este tipo de recurso.
+     * Libera recursos.
+     * Esto equivale a "cerrar la conexión" de este tipo de recurso.
      */
     public void cerrarConexion() {
         if (properties != null) {
@@ -77,8 +80,6 @@ public class ConexionProperties {
 
     /**
      * Retorna el archivo actualmente cargado.
-     *
-     * @return Archivo .properties utilizado.
      */
     public File getArchivo() {
         return archivo;

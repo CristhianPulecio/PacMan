@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import udistrital.avanzada.parcial2.PacMan.servidor.vista.VistaArchivos;
+import udistrital.avanzada.parcial2.PacMan.servidor.vista.VistaArchivosServer;
 
 /**
  * Clase controladora responsable de: - Crear el servidor. - Escuchar conexiones
@@ -42,7 +42,7 @@ public class Servidor {
     public Servidor() throws SQLException, IOException {
 
         // 1. Abrir JFileChoosers para elegir archivos
-        VistaArchivos selector = new VistaArchivos();
+        VistaArchivosServer selector = new VistaArchivosServer();
 
         File archivoProperties = selector.getArchivoProperties();
         File archivoAleatorio = selector.getArchivoAleatorio();

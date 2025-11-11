@@ -7,59 +7,43 @@ package udistrital.avanzada.parcial2.PacMan.servidor.modelo.DAO;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AleatorioDAO
- * 
- * Gestiona un archivo binario de acceso aleatorio donde cada registro
- * tiene tamaño fijo y almacena:
- *  - nombre del jugador (30 caracteres fijos)
- *  - puntaje (int)
- *  - tiempo total (long)
  *
- * Cada registro tiene un tamaño fijo de 72 bytes.
+ * Guarda registros en archivo binario aleatorio.
+ * Cada registro tiene:
+ *  - nombre (30 chars => 60 bytes)
+ *  - puntaje (int 4 bytes)
+ *  - tiempo  (long 8 bytes)
  *
- * author USER
+ * Total = 72 bytes por registro.
  */
 public class AleatorioDAO {
 
-    /** Tamaño fijo del nombre (30 caracteres = 60 bytes UTF-16). */
     private static final int TAM_NOMBRE = 30;
-
-    /** Tamaño total en bytes por registro. */
     private static final int TAM_REGISTRO = 72;
 
     private final File archivo;
     private RandomAccessFile raf;
 
-    /**
-     * Constructor.
-     * @param archivoArchivo archivo binario donde se guardan registros
-     */
     public AleatorioDAO(File archivoArchivo) {
         this.archivo = archivoArchivo;
     }
 
-    /**
-     * Abre el archivo para lectura/escritura en modo aleatorio.
-     */
     private void abrir() throws IOException {
         raf = new RandomAccessFile(archivo, "rw");
     }
 
-    /**
-     * Cierra el archivo.
-     */
     private void cerrar() throws IOException {
         if (raf != null) raf.close();
     }
 
     /**
-     * Escribe un registro al final del archivo.
-     * 
-     * @param nombre nombre del jugador
-     * @param puntaje puntaje final
-     * @param tiempo tiempo total
+     * Guarda un registro recibiendo valores simples.
      */
     public void guardarRegistro(String nombre, int puntaje, long tiempo) throws IOException {
         try {
@@ -78,8 +62,19 @@ public class AleatorioDAO {
     }
 
     /**
-     * Escribe un nombre de tamaño fijo (30 caracteres).
+     * Guarda un registro recibiendo un Map con:
+     *  - "usuario" : String
+     *  - "puntaje" : Integer
+     *  - "tiempo"  : Long
      */
+    public void guardarRegistro(Map<String, Object> datos) throws IOException {
+        String nombre = (String) datos.get("usuario");
+        int puntaje = (int) datos.get("puntaje");
+        long tiempo = (long) datos.get("tiempo");
+
+        guardarRegistro(nombre, puntaje, tiempo);
+    }
+
     private void escribirNombreFijo(String nombre) throws IOException {
         StringBuilder sb = new StringBuilder(nombre);
 
@@ -92,9 +87,6 @@ public class AleatorioDAO {
         raf.writeChars(sb.toString());
     }
 
-    /**
-     * Lee un nombre de tamaño fijo (30 chars).
-     */
     private String leerNombreFijo() throws IOException {
         char[] buffer = new char[TAM_NOMBRE];
         for (int i = 0; i < TAM_NOMBRE; i++) {
@@ -104,35 +96,29 @@ public class AleatorioDAO {
     }
 
     /**
-     * Representa un registro individual.
+     * Lee todos los registros como una lista de Map<String,Object>.
      */
-    public static class Registro {
-        public String nombre;
-        public int puntaje;
-        public long tiempo;
+    public List<Map<String,Object>> leerTodos() throws IOException {
+        List<Map<String,Object>> lista = new ArrayList<>();
 
-        public Registro(String nombre, int puntaje, long tiempo) {
-            this.nombre = nombre;
-            this.puntaje = puntaje;
-            this.tiempo = tiempo;
-        }
-    }
-
-    /**
-     * Lee todos los registros del archivo.
-     */
-    public Registro[] leerTodos() throws IOException {
         try {
             abrir();
             long totalReg = raf.length() / TAM_REGISTRO;
-            Registro[] lista = new Registro[(int) totalReg];
 
             for (int i = 0; i < totalReg; i++) {
                 raf.seek(i * TAM_REGISTRO);
+
                 String nombre = leerNombreFijo();
                 int puntaje = raf.readInt();
                 long tiempo = raf.readLong();
-                lista[i] = new Registro(nombre, puntaje, tiempo);
+
+                Map<String,Object> registro = Map.of(
+                    "usuario", nombre,
+                    "puntaje", puntaje,
+                    "tiempo", tiempo
+                );
+
+                lista.add(registro);
             }
 
             return lista;
@@ -143,23 +129,28 @@ public class AleatorioDAO {
     }
 
     /**
-     * Obtiene el mejor jugador:
-     * - Mayor puntaje
-     * - Si hay empate, menor tiempo
+     * Obtiene el mejor jugador como un Map:
+     *  - mayor puntaje
+     *  - en caso de empate, menor tiempo
      */
-    public Registro obtenerMejorJugador() throws IOException {
-        Registro[] registros = leerTodos();
+    public Map<String,Object> obtenerMejorJugador() throws IOException {
 
-        if (registros.length == 0) return null;
+        List<Map<String,Object>> registros = leerTodos();
+        if (registros.isEmpty()) return null;
 
-        Registro mejor = registros[0];
+        Map<String,Object> mejor = registros.get(0);
 
-        for (int i = 1; i < registros.length; i++) {
-            Registro r = registros[i];
+        for (int i = 1; i < registros.size(); i++) {
 
-            if (r.puntaje > mejor.puntaje) {
-                mejor = r;
-            } else if (r.puntaje == mejor.puntaje && r.tiempo < mejor.tiempo) {
+            Map<String,Object> r = registros.get(i);
+
+            int p1 = (int) mejor.get("puntaje");
+            int p2 = (int) r.get("puntaje");
+
+            long t1 = (long) mejor.get("tiempo");
+            long t2 = (long) r.get("tiempo");
+
+            if (p2 > p1 || (p2 == p1 && t2 < t1)) {
                 mejor = r;
             }
         }
@@ -167,4 +158,5 @@ public class AleatorioDAO {
         return mejor;
     }
 }
+
 
