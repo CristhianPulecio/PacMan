@@ -16,70 +16,79 @@ import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionBase
 import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionPropertiesServer;
 
 /**
- * ControlConexion
+ * Clase que centraliza la conexión entre los diferentes componentes del servidor.
+ * 
+ * <p>Responsabilidades principales:</p>
+ * <ul>
+ *   <li>Cargar y leer el archivo de configuración (.properties).</li>
+ *   <li>Inicializar las conexiones a base de datos y al archivo aleatorio.</li>
+ *   <li>Instanciar los DAOs (Data Access Objects) necesarios para operar.</li>
+ *   <li>Registrar usuarios desde el archivo de propiedades en la base de datos.</li>
+ *   <li>Guardar los resultados finales de cada jugador en el archivo aleatorio.</li>
+ * </ul>
  *
- * Flujo real:
- *  - VistaArchivos elige:
- *       * archivoProperties
- *       * archivoAleatorio
- *  - Servidor crea ControlConexion con esos archivos
- *  - ControlConexion crea TODOS los DAOs necesarios
+ * <p>No se encarga de manejar sockets, ni de mostrar interfaz gráfica.
+ * Su objetivo es proveer servicios de acceso a datos al resto de controladores.</p>
  *
- * Responsabilidades:
- * 1. Cargar el archivo .properties.
- * 2. Crear PropertiesDAO.
- * 3. Crear BaseDatosDAO (usando URL del properties).
- * 4. Crear AleatorioDAO.
- * 5. Registrar los usuarios en BD desde properties.
- * 6. Permitir guardar puntaje final en archivo aleatorio.
- *
- * NO maneja sockets.
- * NO crea GUI.
- * NO imprime nada.
- *
- * author USER
+ * @author Cristhian Pulecio
  */
 public class ControlConexion {
 
+    /** Conexión hacia el archivo de propiedades (.properties) */
     private final ConexionPropertiesServer conexionProperties;
+    
+    /** DAO para manejar los valores del archivo de propiedades */
     private final PropertiesDAO propertiesDAO;
 
+    /** Conexión hacia la base de datos */
     private final ConexionBaseDatos conexionBaseDatos;
+    
+    /** DAO que maneja operaciones sobre la base de datos */
     private final BaseDatosDAO baseDatosDAO;
 
+    /** DAO para la gestión del archivo aleatorio (.dat) */
     private final AleatorioDAO aleatorioDAO;
 
     /**
-     * Constructor principal.
+     * Constructor principal que inicializa todas las conexiones y DAOs 
+     * necesarios para el funcionamiento del servidor.
      *
-     * @param archivoProperties archivo .properties elegido por el usuario.
-     * @param archivoAleatorio archivo binario aleatorio elegido por el usuario.
-     * @throws IOException si falla lectura del properties.
+     * @param archivoProperties archivo de configuración .properties elegido por 
+     * el usuario.
+     * @param archivoAleatorio archivo binario aleatorio (.dat) donde se guardan
+     * los resultados.
+     * @throws IOException si ocurre un error al leer el archivo de propiedades.
      */
-    public ControlConexion(File archivoProperties, File archivoAleatorio) throws IOException {
+    public ControlConexion(File archivoProperties, File archivoAleatorio) throws 
+            IOException {
 
-        // 1. Cargar archivo properties
+        //1. Cargar archivo .properties y leer su contenido
         this.conexionProperties = new ConexionPropertiesServer();
         this.conexionProperties.cargarArchivoProperties(archivoProperties);
 
-        // 2. Crear DAO de properties
+        //2. Crear el DAO asociado al archivo de propiedades
         this.propertiesDAO = new PropertiesDAO(conexionProperties);
 
-        // 3. Crear conexión a la base de datos usando URL del properties
+        //3. Crear conexión a la base de datos usando los valores del properties
         String urlBD = propertiesDAO.obtenerUrlBaseDatos();
         String usuario = propertiesDAO.obtenerUsuarioBaseDatos();
         String contrasena = propertiesDAO.obtenerContrasenaBaseDatos();
-        this.conexionBaseDatos = new ConexionBaseDatos(urlBD, usuario, contrasena);
+        this.conexionBaseDatos = new ConexionBaseDatos(urlBD, usuario, 
+                contrasena);
 
-        // 4. Crear DAO de base de datos
+        // 4. Crear DAO que maneja las operaciones sobre la base de datos
         this.baseDatosDAO = new BaseDatosDAO(conexionBaseDatos);
 
-        // 5. Crear DAO para archivo aleatorio
+        // 5. Crear DAO que maneja operaciones sobre el archivo aleatorio
         this.aleatorioDAO = new AleatorioDAO(archivoAleatorio);
     }
 
     /**
-     * Inserta en la base de datos todos los usuarios presentes en el .properties.
+     * Inserta en la base de datos todos los usuarios definidos en el archivo
+     * .properties, junto con sus respectivas contraseñas.
+     *
+     * @throws SQLException si ocurre un error durante la inserción en la base 
+     * de datos.
      */
     public void registrarUsuariosDesdeProperties() throws SQLException {
 
@@ -94,33 +103,49 @@ public class ControlConexion {
     }
 
     /**
-     * Guarda el registro final de un jugador al terminar su partida.
+     * Guarda en el archivo aleatorio la información de una partida terminada.
+     *
+     * @param usuario nombre del jugador.
+     * @param puntaje puntaje final obtenido.
+     * @param tiempo tiempo total de la partida.
+     * @throws IOException si ocurre un error al escribir en el archivo .dat.
      */
-    public void guardarResultadoEnAleatorio(String usuario, int puntaje, long tiempo)
+    public void guardarResultadoEnAleatorio(String usuario, int puntaje, long 
+            tiempo)
             throws IOException {
 
         aleatorioDAO.guardarRegistro(usuario, puntaje, tiempo);
     }
-    
-    public boolean validarUsuario(String usuario, String contrasena) throws SQLException {
+
+    /**
+     * Valida las credenciales de un usuario consultando la base de datos.
+     *
+     * @param usuario nombre de usuario.
+     * @param contrasena contraseña asociada.
+     * @return true si las credenciales son correctas, false en caso contrario.
+     * @throws SQLException si ocurre un error al acceder a la base de datos.
+     */
+    public boolean validarUsuario(String usuario, String contrasena) throws 
+            SQLException {
         return baseDatosDAO.validarUsuario(usuario, contrasena);
     }
 
-    /* ======================================================
-       GETTERS PARA EL SERVIDOR Y LOS THREADSERVIDOR
-       ====================================================== */
 
+    /** @return DAO asociado al archivo .properties */
     public PropertiesDAO getPropertiesDAO() {
         return propertiesDAO;
     }
 
+    /** @return DAO asociado a la base de datos */
     public BaseDatosDAO getBaseDatosDAO() {
         return baseDatosDAO;
     }
 
+    /** @return DAO asociado al archivo aleatorio */
     public AleatorioDAO getAleatorioDAO() {
         return aleatorioDAO;
     }
 }
+
 
 

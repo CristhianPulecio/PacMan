@@ -10,38 +10,46 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Clase responsable únicamente de cargar y gestionar la lectura de un archivo
- * .properties. La ruta del archivo será suministrada por medio de un
- * JFileChooser desde una clase externa.
+ * Clase {@code ConexionPropertiesServer}
  *
- * Esta clase NO implementa conexión a BD ni sockets; solo gestiona la carga de
- * propiedades solicitadas por el cliente o el servidor.
+ * <p>Responsable de cargar, mantener y cerrar un archivo de configuración
+ * <b>.properties</b> que contiene parámetros como usuarios, contraseñas, puerto
+ * y URL de base de datos.</p>
  *
- * Principio aplicado: SINGLE RESPONSIBILITY (SOLID)
- * 
- * @author Cristhian Pulecio
+ * <p>La ruta del archivo es proporcionada externamente mediante un 
+ * {@link javax.swing.JFileChooser}.</p>
+ *
+ * <p><b>Principio aplicado:</b> Single Responsibility (SOLID),
+ * ya que esta clase únicamente gestiona la carga y lectura del archivo
+ * de propiedades.</p>
+ *
+ * <p>No realiza conexión a la base de datos, ni operaciones de red,
+ * ni validaciones adicionales.</p>
+ *
+ * @author 
+ * Cristhian Pulecio
  */
 public class ConexionPropertiesServer {
 
-    /** Objeto que almacena las propiedades cargadas desde el archivo. */
+    /** Objeto {@link Properties} que contiene los pares clave-valor cargados.*/
     private Properties properties;
 
-    /** Ruta del archivo properties cargado. */
+    /** Archivo .properties actualmente en uso. */
     private File archivo;
 
     /**
-     * Constructor vacío. El archivo será recibido posteriormente mediante el método
-     * cargarArchivoProperties().
+     * Constructor por defecto.
+     * Inicializa la estructura de propiedades vacía.
      */
     public ConexionPropertiesServer() {
         this.properties = new Properties();
     }
 
     /**
-     * Carga en memoria el archivo .properties recibido.
+     * Carga el archivo .properties en memoria.
      *
-     * @param archivo Archivo seleccionado mediante JFileChooser.
-     * @throws IOException si no es posible leer el archivo o su contenido.
+     * @param archivo archivo seleccionado desde la vista (JFileChooser).
+     * @throws IOException si ocurre un error durante la lectura del archivo.
      */
     public void cargarArchivoProperties(File archivo) throws IOException {
         this.archivo = archivo;
@@ -52,10 +60,10 @@ public class ConexionPropertiesServer {
     }
 
     /**
-     * Recupera el valor de una clave dentro del archivo properties.
+     * Recupera el valor asociado a una clave del archivo properties.
      *
-     * @param clave Nombre de la propiedad.
-     * @return Valor asociado a la clave, o null si no existe.
+     * @param clave clave a buscar dentro del archivo.
+     * @return valor asociado, o {@code null} si la clave no existe.
      */
     public String getProperty(String clave) {
         if (properties == null) {
@@ -65,8 +73,10 @@ public class ConexionPropertiesServer {
     }
 
     /**
-     * Libera la referencia al archivo y limpia las propiedades cargadas.
-     * Esta operación se considera el "cierre de conexión" para este tipo de recurso.
+     * Libera los recursos asociados a la conexión de propiedades.
+     * 
+     * <p>Equivale al cierre de conexión para este tipo de recurso:
+     * limpia el contenido cargado y anula la referencia al archivo.</p>
      */
     public void cerrarConexion() {
         if (properties != null) {
@@ -76,12 +86,13 @@ public class ConexionPropertiesServer {
     }
 
     /**
-     * Retorna el archivo actualmente cargado.
+     * Retorna el archivo .properties actualmente cargado.
      *
-     * @return Archivo .properties utilizado.
+     * @return instancia de {@link File} que representa el archivo cargado.
      */
     public File getArchivo() {
         return archivo;
     }
 }
+
 

@@ -10,26 +10,38 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- * VistaArchivos
+ * Clase {@code VistaArchivosServer}
+ * 
+ * <p>Interfaz sencilla que permite al usuario seleccionar los archivos
+ * necesarios para la configuración del servidor Pac-Man:</p>
+ * <ul>
+ *   <li>Un archivo <b>.properties</b> con la configuración del sistema.</li>
+ *   <li>Un archivo <b>.dat</b> que funcionará como archivo aleatorio 
+ * binario.</li>
+ * </ul>
  *
- * Clase simple encargada únicamente de permitir que el usuario seleccione:
- *  - Un archivo .properties
- *  - Un archivo para el archivo aleatorio (.dat)
+ * <p>Esta clase no ejecuta la lógica del servidor. Su responsabilidad es
+ * únicamente proporcionar las rutas seleccionadas a la clase 
+ * {@code Servidor}.</p>
  *
- * Esta clase NO crea el servidor.
- * El servidor la crea a ella para obtener los archivos seleccionados.
+ * <p>Principio aplicado: <b>Single Responsibility (SRP)</b>.</p>
  *
- * No imprime nada.
- *
- * author USER
+ * @author 
+ * Nicolás Arias
  */
 public class VistaArchivosServer extends JFrame {
 
+    /** Archivo de configuración .properties seleccionado por el usuario. */
     private File archivoProperties;
+
+    /** Archivo aleatorio (.dat) seleccionado o creado por el usuario. */
     private File archivoAleatorio;
 
+    /**
+     * Constructor que inicializa los selectores de archivo sin mostrar una
+     * ventana principal visible.
+     */
     public VistaArchivosServer() {
-        // No es necesario mostrar ventana
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         seleccionarArchivoProperties();
@@ -37,49 +49,44 @@ public class VistaArchivosServer extends JFrame {
     }
 
     /**
-     * Abre el JFileChooser para el archivo .properties.
+     * Permite seleccionar el archivo .properties que contiene la configuración
+     * del servidor (puerto, usuarios, contraseñas, etc.).
      */
     private void seleccionarArchivoProperties() {
-
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Seleccione archivo .properties");
-        chooser.setFileFilter(new FileNameExtensionFilter("Archivo Properties (*.properties)", "properties"));
-
-        int opcion = chooser.showOpenDialog(this);
-
-     
+        chooser.setFileFilter(new FileNameExtensionFilter("Archivo Properties "
+                + "(*.properties)", "properties"));
+        chooser.showOpenDialog(this);
         this.archivoProperties = chooser.getSelectedFile();
-
     }
 
     /**
-     * Abre el JFileChooser para seleccionar archivo aleatorio
-     * (.dat o cualquier archivo binario).
+     * Permite seleccionar o crear el archivo aleatorio (.dat) donde se
+     * almacenarán los puntajes y tiempos de los jugadores.
      */
     private void seleccionarArchivoAleatorio() {
-
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Seleccione archivo aleatorio (.dat)");
-
-        chooser.setFileFilter(new FileNameExtensionFilter("Archivo binario (*.dat)", "dat"));
-
-        int opcion = chooser.showSaveDialog(this);
-
-
+        chooser.setFileFilter(new FileNameExtensionFilter("Archivo binario "
+                + "(*.dat)", "dat"));
+        chooser.showSaveDialog(this);
         this.archivoAleatorio = chooser.getSelectedFile();
-   
     }
 
-    /* ============================================
-       GETTERS PARA EL SERVIDOR
-       ============================================ */
+    // ============================================================
+    // GETTERS
+    // ============================================================
 
+    /** @return archivo .properties seleccionado. */
     public File getArchivoProperties() {
         return archivoProperties;
     }
 
+    /** @return archivo aleatorio (.dat) seleccionado. */
     public File getArchivoAleatorio() {
         return archivoAleatorio;
     }
 }
+
 

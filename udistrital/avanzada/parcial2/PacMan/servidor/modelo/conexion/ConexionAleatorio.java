@@ -9,39 +9,43 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * Clase responsable únicamente de establecer y cerrar la conexión hacia
- * un archivo de acceso aleatorio (RandomAccessFile). El archivo permite
- * lecturas y escrituras basadas en posiciones y tamaños específicos de bytes.
+ * Clase {@code ConexionAleatorio}
  *
- * Esta clase NO implementa la lógica de lectura ni escritura de registros.
- * Solo gestiona la creación y administración del objeto RandomAccessFile,
- * para ser usado posteriormente por un DAO de acceso aleatorio.
+ * <p>Encargada únicamente de gestionar la conexión con un archivo de acceso 
+ * aleatorio
+ * mediante {@link RandomAccessFile}. Permite abrir, cerrar y recuperar el 
+ * archivo,
+ * pero no implementa lógica de lectura o escritura.</p>
  *
- * Principio aplicado: SINGLE RESPONSIBILITY (SOLID).
- * 
- * Modo de apertura: "rw" (lectura y escritura).
+ * <p>Modo de apertura: <b>"rw"</b> (lectura y escritura).</p>
  *
- * @author USER
+ * <p><b>Principio aplicado:</b> Single Responsibility (SOLID), ya que su 
+ * función
+ * es exclusivamente mantener la conexión al archivo.</p>
+ *
+ * @author 
+ * Cristhian Pulecio
  */
 public class ConexionAleatorio {
 
-    /** Archivo físico sobre el que se realizará acceso aleatorio. */
+    /** Archivo físico sobre el cual se realizará acceso aleatorio. */
     private File archivo;
 
-    /** Objeto RandomAccessFile que permite operar por posiciones. */
+    /** Objeto RandomAccessFile que permite manipulación por posiciones. */
     private RandomAccessFile raf;
 
     /**
-     * Constructor vacío. El archivo será recibido posteriormente mediante
-     * abrirArchivo().
+     * Constructor vacío. 
+     * El archivo será definido posteriormente mediante 
+     * {@link #abrirArchivo(File)}.
      */
     public ConexionAleatorio() { }
 
     /**
      * Abre o crea el archivo aleatorio con permisos de lectura y escritura.
      *
-     * @param archivo Archivo físico que se usará para acceso aleatorio.
-     * @throws IOException si ocurre un error al intentar abrirlo.
+     * @param archivo archivo físico que se usará para acceso aleatorio.
+     * @throws IOException si ocurre un error al intentar abrir el archivo.
      */
     public void abrirArchivo(File archivo) throws IOException {
         this.archivo = archivo;
@@ -49,17 +53,17 @@ public class ConexionAleatorio {
     }
 
     /**
-     * Retorna el objeto RandomAccessFile para que el DAO pueda leer o
-     * escribir en posiciones específicas del archivo.
+     * Retorna el objeto {@link RandomAccessFile} activo para que el DAO
+     * correspondiente realice operaciones sobre el archivo.
      *
-     * @return Objeto RandomAccessFile conectado.
+     * @return instancia de RandomAccessFile abierta.
      */
     public RandomAccessFile getRandomAccessFile() {
         return raf;
     }
 
     /**
-     * Cierra la conexión del archivo aleatorio si está abierta.
+     * Cierra la conexión al archivo aleatorio si está abierta.
      *
      * @throws IOException si ocurre un error durante el cierre.
      */
@@ -74,10 +78,11 @@ public class ConexionAleatorio {
     /**
      * Retorna el archivo físico asociado a la conexión.
      *
-     * @return Archivo utilizado por RandomAccessFile.
+     * @return objeto File actualmente vinculado.
      */
     public File getArchivo() {
         return archivo;
     }
 }
+
 

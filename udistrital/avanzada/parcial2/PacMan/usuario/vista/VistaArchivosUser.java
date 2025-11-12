@@ -9,37 +9,55 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- * VistaArchivosUser
+ * Clase {@code VistaArchivosUser}
  *
- * ÚNICA RESPONSABILIDAD:
- * - Permitir al usuario seleccionar un archivo .properties mediante JFileChooser.
+ * <p>Su única responsabilidad es permitir que el usuario seleccione un archivo
+ * de configuración con extensión <b>.properties</b> mediante un cuadro de 
+ * diálogo gráfico.</p>
  *
- * NO lee el archivo.
- * NO imprime nada.
- * NO valida lógica del contenido.
+ * <p><b>Responsabilidades:</b></p>
+ * <ul>
+ *   <li>Abrir un {@link JFileChooser} para elegir el archivo de 
+ * propiedades.</li>
+ *   <li>Filtrar los archivos visibles a solo los de tipo <code>.
+ * properties</code>.</li>
+ *   <li>Devolver el archivo seleccionado al controlador.</li>
+ * </ul>
  *
- * author USER
+ * <p><b>Restricciones:</b></p>
+ * <ul>
+ *   <li>No valida el contenido del archivo.</li>
+ *   <li>No realiza lectura ni escritura.</li>
+ *   <li>No imprime mensajes ni genera errores visibles al usuario.</li>
+ * </ul>
+ *
+ * @author 
+ * Nicolás Arias
  */
 public class VistaArchivosUser {
 
     /**
-     * Abre un JFileChooser para seleccionar un archivo .properties.
+     * Abre un diálogo de selección de archivos para permitir al usuario elegir
+     * un archivo de configuración (.properties) en su sistema.
      *
-     * @return Archivo seleccionado, o null si el usuario cancela.
+     * @return el {@link File} seleccionado por el usuario, o {@code null}
+     *         si el usuario cancela la selección.
      */
     public File seleccionarArchivoProperties() {
         JFileChooser chooser = new JFileChooser();
 
-        // Filtra solo archivos .properties
+        // Filtro para mostrar únicamente archivos .properties
         FileNameExtensionFilter filter =
-                new FileNameExtensionFilter("Archivos de configuración (*.properties)", "properties");
+                new FileNameExtensionFilter("Archivos de configuración "
+                        + "(*.properties)", "properties");
         chooser.setFileFilter(filter);
 
+        // Abre el diálogo y espera la acción del usuario
         int opcion = chooser.showOpenDialog(null);
 
-
+        // Retorna el archivo seleccionado (puede ser null si el usuario cancela)
         return chooser.getSelectedFile();
-
     }
 }
+
 

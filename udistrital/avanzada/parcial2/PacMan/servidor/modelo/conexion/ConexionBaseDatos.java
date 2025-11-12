@@ -9,37 +9,41 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Clase encargada exclusivamente de establecer y cerrar la conexión
- * con una base de datos MySQL. Esta clase recibe los parámetros de conexión
- * (URL, usuario y contraseña) desde una clase externa, típicamente obtenidos
- * desde un archivo .properties usando la clase ConexionProperties.
+ * Clase {@code ConexionBaseDatos}
  *
- * Principio aplicado: SINGLE RESPONSIBILITY (SOLID).
+ * <p>Encargada exclusivamente de establecer y cerrar la conexión con una
+ * base de datos MySQL.</p>
  *
- * Esta clase NO implementa operaciones SQL ni lógica del patrón DAO.
- * Únicamente crea y gestiona la conexión.
- * 
- * @author USER
+ * <p>Los parámetros de conexión (URL, usuario y contraseña) son suministrados
+ * desde un archivo .properties cargado por una clase externa.</p>
+ *
+ * <p><b>Principio aplicado:</b> Single Responsibility (SOLID), ya que esta 
+ * clase
+ * solo maneja la conexión sin ejecutar operaciones SQL.</p>
+ *
+ * @author 
+ * Cristhian Pulecio
  */
 public class ConexionBaseDatos {
 
-    /** URL de la base de datos (jdbc:mysql://...) */
+    /** URL de conexión a la base de datos (jdbc:mysql://...) */
     private final String url;
 
-    /** Usuario de la base de datos */
+    /** Usuario autorizado para la conexión. */
     private final String usuario;
 
-    /** Contraseña del usuario */
+    /** Contraseña del usuario de la base de datos. */
     private final String contrasena;
 
-    /** Objeto Connection activo */
+    /** Objeto Connection que representa la conexión activa. */
     private Connection conexion;
 
     /**
-     * Constructor que recibe todos los parámetros de conexión.
+     * Constructor que inicializa los parámetros de conexión.
      *
-     * 
-     * @param contrasena Contraseña del usuario.
+     * @param url dirección JDBC de la base de datos.
+     * @param usuario nombre del usuario de la BD.
+     * @param contrasena contraseña asociada al usuario.
      */
     public ConexionBaseDatos(String url, String usuario, String contrasena) {
         this.url = url;
@@ -48,9 +52,9 @@ public class ConexionBaseDatos {
     }
 
     /**
-     * Establece la conexión con la base de datos MySQL.
+     * Establece una conexión con la base de datos MySQL.
      *
-     * @throws SQLException si ocurre un error durante la conexión.
+     * @throws SQLException si ocurre un error durante el intento de conexión.
      */
     public void conectar() throws SQLException {
         if (conexion == null || conexion.isClosed()) {
@@ -59,18 +63,18 @@ public class ConexionBaseDatos {
     }
 
     /**
-     * Retorna la conexión activa para ser utilizada por las clases DAO.
+     * Retorna la conexión activa para ser utilizada por los DAOs.
      *
-     * @return Objeto Connection conectado a la BD.
+     * @return objeto {@link Connection} conectado a la BD.
      */
     public Connection getConexion() {
         return conexion;
     }
 
     /**
-     * Cierra la conexión activa si existe.
+     * Cierra la conexión activa, si existe.
      *
-     * @throws SQLException si ocurre un error durante el cierre.
+     * @throws SQLException si ocurre un error al cerrar la conexión.
      */
     public void cerrarConexion() throws SQLException {
         if (conexion != null && !conexion.isClosed()) {
@@ -78,3 +82,4 @@ public class ConexionBaseDatos {
         }
     }
 }
+

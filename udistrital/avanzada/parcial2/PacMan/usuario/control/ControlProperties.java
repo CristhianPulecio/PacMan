@@ -9,29 +9,37 @@ import java.io.IOException;
 import udistrital.avanzada.parcial2.PacMan.usuario.modelo.ConexionPropertiesUser;
 
 /**
- * ControlProperties
+ * Clase {@code ControlProperties}
+ * 
+ * <p>Responsable de gestionar el acceso al archivo de configuración
+ * <b>.properties</b> del cliente Pac-Man.</p>
  *
- * RESPONSABILIDADES:
- * - Recibir desde una clase externa el archivo .properties (JFileChooser).
- * - Crear y administrar ConexionPropertiesUser.
- * - Exponer métodos de acceso a valores comunes del archivo properties.
+ * <p>Sus principales responsabilidades son:</p>
+ * <ul>
+ *   <li>Recibir desde una vista el archivo .properties seleccionado.</li>
+ *   <li>Crear y administrar la conexión mediante 
+ * {@link ConexionPropertiesUser}.</li>
+ *   <li>Proporcionar acceso a los valores de configuración, como usuario,
+ *       contraseña, IP y puerto del servidor.</li>
+ * </ul>
  *
- * NO crea GUI.
- * NO abre sockets.
- * NO imprime nada.
+ * <p>Esta clase no imprime, no maneja sockets y no crea interfaz gráfica.</p>
  *
- * author USER
+ * <p>Principio aplicado: <b>Single Responsibility (SRP)</b>.</p>
+ *
+ * @author 
+ * Miguel Hernández
  */
 public class ControlProperties {
 
+    /** Objeto de conexión encargado de manejar el archivo .properties. */
     private final ConexionPropertiesUser conexionProperties;
 
     /**
-     * Constructor:
-     * Recibe el archivo seleccionado por una clase externa (VistaArchivosUser).
+     * Constructor principal que carga el archivo de propiedades seleccionado.
      *
      * @param archivoProperties archivo .properties elegido por el usuario.
-     * @throws IOException si ocurre un error leyendo el archivo.
+     * @throws IOException si ocurre un error al leer el archivo.
      */
     public ControlProperties(File archivoProperties) throws IOException {
         this.conexionProperties = new ConexionPropertiesUser();
@@ -39,45 +47,42 @@ public class ControlProperties {
     }
 
     /**
-     * Retorna el valor asociado a una clave.
+     * Retorna el valor asociado a una clave específica dentro del archivo.
+     *
+     * @param clave clave buscada.
+     * @return valor de la propiedad o {@code null} si no existe.
      */
     public String getProperty(String clave) {
         return conexionProperties.getProperty(clave);
     }
 
-    /**
-     * Obtiene el usuario definido en el archivo properties.
-     */
+    /** @return nombre del usuario definido en el archivo .properties. */
     public String getUsuario() {
         return conexionProperties.getProperty("usuario");
     }
 
-    /**
-     * Obtiene la contraseña definida en el archivo properties.
-     */
+    /** @return contraseña del usuario definida en el archivo .properties. */
     public String getContrasena() {
         return conexionProperties.getProperty("contrasena");
     }
 
-    /**
-     * Obtiene la IP del servidor.
-     */
+    /** @return dirección IP del servidor. */
     public String getIPServidor() {
         return conexionProperties.getProperty("ip_servidor");
     }
 
-    /**
-     * Obtiene el puerto del servidor.
-     */
+    /** @return puerto configurado para la conexión con el servidor. */
     public String getPuertoServidor() {
         return conexionProperties.getProperty("puerto_servidor");
     }
 
     /**
-     * Libera la conexión al archivo properties.
+     * Cierra y libera los recursos asociados a la conexión del archivo 
+     * .properties.
      */
     public void cerrar() {
         conexionProperties.cerrarConexion();
     }
 }
+
 

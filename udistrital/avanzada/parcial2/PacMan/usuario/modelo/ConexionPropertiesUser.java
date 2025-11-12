@@ -10,32 +10,33 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Clase responsable únicamente de cargar y gestionar la lectura
- * de un archivo .properties para el lado del USUARIO.
+ * Clase {@code ConexionPropertiesUser}
  *
- * La ruta del archivo será suministrada mediante un JFileChooser externo.
+ * <p>Encargada de la lectura y gestión del archivo <b>.properties</b>
+ * que contiene la configuración del cliente Pac-Man (usuario, contraseña,
+ * IP del servidor y puerto).</p>
  *
- * RESPONSABILIDADES:
- *  - Cargar el archivo .properties
- *  - Permitir obtener los valores por clave
- *  - Limpiar recursos ("cerrar conexión")
+ * <p>Responsabilidades:</p>
+ * <ul>
+ *   <li>Cargar en memoria el archivo .properties seleccionado.</li>
+ *   <li>Permitir consultar valores por clave.</li>
+ *   <li>Limpiar y liberar los recursos al finalizar.</li>
+ * </ul>
  *
- * Esta clase NO conecta a BD, NO abre sockets y NO imprime.
+ * <p>No conecta a bases de datos, no abre sockets y no imprime en consola.</p>
  *
- * author USER
+ * @author 
+ * Miguel Hernández
  */
 public class ConexionPropertiesUser {
 
-    /** Objeto que almacena las propiedades cargadas desde el archivo. */
+    /** Propiedades cargadas desde el archivo. */
     private Properties properties;
 
-    /** Archivo .properties cargado. */
+    /** Archivo .properties actual. */
     private File archivo;
 
-    /**
-     * Constructor vacío.
-     * El archivo se cargará usando cargarArchivoProperties(File).
-     */
+    /** Constructor vacío. El archivo se carga posteriormente. */
     public ConexionPropertiesUser() {
         this.properties = new Properties();
     }
@@ -43,22 +44,21 @@ public class ConexionPropertiesUser {
     /**
      * Carga en memoria el archivo .properties recibido.
      *
-     * @param archivo archivo seleccionado mediante JFileChooser.
-     * @throws IOException si ocurre error de lectura.
+     * @param archivo archivo de configuración seleccionado.
+     * @throws IOException si ocurre un error de lectura.
      */
     public void cargarArchivoProperties(File archivo) throws IOException {
         this.archivo = archivo;
-
         try (FileInputStream fis = new FileInputStream(archivo)) {
             properties.load(fis);
         }
     }
 
     /**
-     * Obtiene el valor asociado a una clave del archivo .properties.
+     * Obtiene el valor de una propiedad por su clave.
      *
-     * @param clave clave a consultar.
-     * @return valor encontrado o null si no existe.
+     * @param clave nombre de la propiedad.
+     * @return valor asociado o {@code null} si no existe.
      */
     public String getProperty(String clave) {
         if (properties == null) {
@@ -68,8 +68,8 @@ public class ConexionPropertiesUser {
     }
 
     /**
-     * Libera recursos.
-     * Esto equivale a "cerrar la conexión" de este tipo de recurso.
+     * Limpia los recursos cargados en memoria.
+     * Equivale a "cerrar la conexión" del archivo de propiedades.
      */
     public void cerrarConexion() {
         if (properties != null) {
@@ -78,11 +78,10 @@ public class ConexionPropertiesUser {
         archivo = null;
     }
 
-    /**
-     * Retorna el archivo actualmente cargado.
-     */
+    /** @return archivo actualmente cargado en el sistema. */
     public File getArchivo() {
         return archivo;
     }
 }
+
 

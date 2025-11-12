@@ -10,34 +10,51 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * ConexionSocket (Cliente)
+ * Clase {@code ConexionSocketUser}
  *
- * RESPONSABILIDAD ÚNICA:
- *  - Establecer la conexión con el servidor usando IP y puerto.
- *  - Proveer InputStream y OutputStream.
- *  - Cerrar el socket y streams.
+ * <p>Representa la conexión TCP del lado del cliente Pac-Man hacia el 
+ * servidor.</p>
  *
- * NO envía comandos.
- * NO recibe mensajes.
- * NO imprime.
- * NO maneja hilos.
- * 
- * Es un simple contenedor de la conexión.
+ * <p><b>Responsabilidad única:</b></p>
+ * <ul>
+ *   <li>Establecer la conexión con el servidor utilizando una dirección IP y 
+ * un puerto.</li>
+ *   <li>Proveer acceso directo a los flujos de entrada y salida (InputStream y 
+ * OutputStream).</li>
+ *   <li>Encapsular el manejo básico del socket sin intervenir en la 
+ * comunicación de datos.</li>
+ * </ul>
  *
- * author USER
+ * <p><b>No realiza las siguientes acciones:</b></p>
+ * <ul>
+ *   <li>No envía comandos.</li>
+ *   <li>No recibe mensajes.</li>
+ *   <li>No imprime información en consola.</li>
+ *   <li>No maneja hilos de ejecución.</li>
+ * </ul>
+ *
+ * <p>Se comporta como un contenedor simple que abstrae la creación, uso y 
+ * cierre del socket.</p>
+ *
+ * @author 
+ * Miguel Hernández
  */
 public class ConexionSocketUser {
 
+    /** Dirección IP del servidor al que se conectará el cliente. */
     private final String ip;
+
+    /** Puerto de red en el cual escucha el servidor. */
     private final int puerto;
 
+    /** Objeto Socket que mantiene la conexión activa con el servidor. */
     private Socket socket;
 
     /**
-     * Constructor.
+     * Constructor de la clase.
      *
-     * @param ip dirección IP del servidor
-     * @param puerto número de puerto del servidor
+     * @param ip dirección IP del servidor.
+     * @param puerto número de puerto en el cual se establecerá la conexión.
      */
     public ConexionSocketUser(String ip, int puerto) {
         this.ip = ip;
@@ -45,37 +62,49 @@ public class ConexionSocketUser {
     }
 
     /**
-     * Crea la conexión con el servidor.
+     * Establece la conexión con el servidor.
+     * <p>Si la conexión falla, lanza una excepción {@link IOException}.</p>
      *
-     * @throws IOException si falla la conexión
+     * @throws IOException si ocurre un error al intentar conectar al servidor.
      */
     public void conectar() throws IOException {
         socket = new Socket(ip, puerto);
     }
 
     /**
-     * Retorna el InputStream asociado al socket.
+     * Retorna el flujo de entrada del socket.
+     * <p>Permite recibir datos enviados por el servidor.</p>
+     *
+     * @return flujo de entrada (InputStream).
+     * @throws IOException si ocurre un error al obtener el flujo.
      */
     public InputStream getInputStream() throws IOException {
         return socket.getInputStream();
     }
 
     /**
-     * Retorna el OutputStream asociado al socket.
+     * Retorna el flujo de salida del socket.
+     * <p>Permite enviar datos hacia el servidor.</p>
+     *
+     * @return flujo de salida (OutputStream).
+     * @throws IOException si ocurre un error al obtener el flujo.
      */
     public OutputStream getOutputStream() throws IOException {
         return socket.getOutputStream();
     }
 
     /**
-     * Cierra el socket y sus streams.
+     * Cierra la conexión del socket junto con sus flujos asociados.
+     * <p>No imprime mensajes ni lanza excepciones controladas, 
+     * ya que se usa en contextos de cierre seguro.</p>
      */
     public void cerrar() {
         try {
             if (socket != null) socket.close();
         } catch (IOException e) {
-            // No imprimir
+            // Silencio intencional: no se imprime nada
         }
     }
 }
+
 

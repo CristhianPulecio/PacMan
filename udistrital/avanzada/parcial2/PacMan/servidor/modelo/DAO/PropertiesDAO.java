@@ -9,49 +9,47 @@ import java.util.List;
 import udistrital.avanzada.parcial2.PacMan.servidor.modelo.conexion.ConexionPropertiesServer;
 
 /**
- * DAO encargado de leer información desde un archivo de propiedades.
+ * Clase {@code PropertiesDAO}
  * 
- * Esta clase obtiene:
- *  - Lista de usuarios
- *  - Lista de contraseñas
- *  - Puerto del servidor
- *  - URL de conexión a la base de datos
- *
- * No se manejan objetos de negocio; todo se gestiona mediante Strings.
- *
- * El archivo .properties debe contener claves como:
- *
+ * <p>DAO encargado de obtener información desde un archivo de propiedades 
+ * (.properties)
+ * previamente cargado con {@link ConexionPropertiesServer}.</p>
+ * 
+ * <p>El archivo debe contener claves como:</p>
+ * <pre>
  * usuarios=juan,pedro,maria
  * contrasenas=1234,abcd,pass
  * puerto=5000
  * db_url=jdbc:mysql://localhost:3306/pacman
- *
- * Principio aplicado: SINGLE RESPONSIBILITY (SOLID).
- *
- * Esta clase solo lee valores y genera estructuras simples.
+ * usuarioBD=root
+ * contrasenaBD=1234
+ * </pre>
  * 
- * Requiere que el archivo ya haya sido cargado mediante ConexionProperties.
- *
- * author USER
+ * <p>Permite obtener listas de usuarios, contraseñas, el puerto del servidor
+ * y los datos de conexión a la base de datos.</p>
+ * 
+ * @author 
+ * Cristhian Pulecio
  */
 public class PropertiesDAO {
 
-    /** Referencia al loader de propiedades. */
+    /** Referencia a la conexión con el archivo .properties. */
     private final ConexionPropertiesServer conexionProperties;
 
     /**
      * Constructor del DAO.
-     *
-     * @param conexionProperties instancia ya cargada con el archivo .properties.
+     * 
+     * @param conexionProperties instancia ya inicializada con el archivo de 
+     * propiedades.
      */
     public PropertiesDAO(ConexionPropertiesServer conexionProperties) {
         this.conexionProperties = conexionProperties;
     }
 
     /**
-     * Lee la lista de usuarios del archivo .properties.
+     * Carga la lista de usuarios definidos en el archivo .properties.
      * 
-     * @return Lista de Strings con usuarios. Nunca retorna null.
+     * @return lista de usuarios como {@code List<String>}, nunca null.
      */
     public List<String> cargarUsuarios() {
         List<String> lista = new ArrayList<>();
@@ -67,9 +65,9 @@ public class PropertiesDAO {
     }
 
     /**
-     * Lee la lista de contraseñas del archivo .properties.
-     *
-     * @return Lista de Strings con contraseñas. Nunca retorna null.
+     * Carga la lista de contraseñas definidas en el archivo .properties.
+     * 
+     * @return lista de contraseñas como {@code List<String>}, nunca null.
      */
     public List<String> cargarContrasenas() {
         List<String> lista = new ArrayList<>();
@@ -85,9 +83,10 @@ public class PropertiesDAO {
     }
 
     /**
-     * Obtiene el puerto del servidor definido en el archivo .properties.
-     *
-     * @return valor del puerto como String (puede convertirse a int fuera).
+     * Obtiene el puerto configurado en el archivo .properties.
+     * 
+     * @return puerto como cadena de texto (debe convertirse a entero 
+     * externamente).
      */
     public String obtenerPuerto() {
         return conexionProperties.getProperty("puerto");
@@ -95,19 +94,30 @@ public class PropertiesDAO {
 
     /**
      * Obtiene la URL de conexión a la base de datos.
-     *
-     * @return URL como String.
+     * 
+     * @return cadena con la URL JDBC.
      */
     public String obtenerUrlBaseDatos() {
         return conexionProperties.getProperty("db_url");
     }
-    
+
+    /**
+     * Obtiene el usuario de la base de datos definido en el archivo.
+     * 
+     * @return nombre de usuario para conexión a la BD.
+     */
     public String obtenerUsuarioBaseDatos() {
         return conexionProperties.getProperty("usuarioBD");
     }
-    
+
+    /**
+     * Obtiene la contraseña de la base de datos definida en el archivo.
+     * 
+     * @return contraseña de conexión a la BD.
+     */
     public String obtenerContrasenaBaseDatos() {
         return conexionProperties.getProperty("contrasenaBD");
     }
 }
+
 

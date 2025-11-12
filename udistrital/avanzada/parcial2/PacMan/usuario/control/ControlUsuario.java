@@ -7,46 +7,52 @@ package udistrital.avanzada.parcial2.PacMan.usuario.control;
 import udistrital.avanzada.parcial2.PacMan.usuario.modelo.Usuario;
 
 /**
- * ControlUsuario
+ * Clase {@code ControlUsuario}
  *
- * RESPONSABILIDADES:
- * - Crear el objeto Usuario a partir de los datos almacenados en ControlProperties.
- * - Proveer acceso seguro al objeto Usuario para otras capas del módulo cliente.
+ * <p>Encargada de construir y administrar un objeto {@link Usuario}
+ * a partir de la información almacenada en el archivo .properties.</p>
  *
- * NO imprime nada.
- * NO crea GUI.
- * NO maneja sockets.
+ * <p>Responsabilidades principales:</p>
+ * <ul>
+ *   <li>Crear un objeto {@code Usuario} usando {@code ControlProperties}.</li>
+ *   <li>Proveer acceso a los datos del usuario para otras capas del 
+ * cliente.</li>
+ * </ul>
  *
- * author USER
+ * <p>No maneja GUI, sockets ni impresión en consola.</p>
+ *
+ * <p>Principio aplicado: <b>Single Responsibility (SRP)</b>.</p>
+ *
+ * @author 
+ * Miguel Hernández
  */
 public class ControlUsuario {
 
+    /** Objeto de dominio que representa al usuario actual. */
     private final Usuario usuario;
 
     /**
-     * Constructor:
-     * Recibe ControlProperties para obtener usuario y contraseña cargados
-     * desde el archivo .properties seleccionado por el usuario.
+     * Constructor que crea un usuario con los datos leídos desde
+     * el archivo .properties.
      *
-     * @param controlProperties controlador encargado de leer el properties.
+     * @param controlProperties instancia de {@code ControlProperties}
+     *                          que contiene los valores cargados.
      */
     public ControlUsuario(ControlProperties controlProperties) {
-
         String nombre = controlProperties.getUsuario();
         String contrasena = controlProperties.getContrasena();
-
         this.usuario = new Usuario(nombre, contrasena);
     }
 
-    /**
-     * Retorna el usuario cargado desde el properties.
-     */
+    /** @return nombre del usuario cargado desde el archivo properties. */
     public String getUsuario() {
         return usuario.getUsuario();
     }
 
+    /** @return contraseña del usuario cargada desde el archivo properties. */
     public String getContrasena() {
         return usuario.getContrasena();
     }
 }
+
 

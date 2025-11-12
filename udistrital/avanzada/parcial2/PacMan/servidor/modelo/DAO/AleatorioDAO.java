@@ -12,46 +12,81 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AleatorioDAO
- *
- * Guarda registros en archivo binario aleatorio.
- * Cada registro tiene:
- *  - nombre (30 chars => 60 bytes)
- *  - puntaje (int 4 bytes)
- *  - tiempo  (long 8 bytes)
- *
- * Total = 72 bytes por registro.
+ * Clase {@code AleatorioDAO}
+ * 
+ * <p>DAO encargado de manejar el almacenamiento y lectura de registros
+ * binarios en un archivo aleatorio. Cada registro contiene la información
+ * de un jugador: nombre, puntaje y tiempo.</p>
+ * 
+ * <p>Estructura de cada registro:</p>
+ * <ul>
+ *   <li><b>nombre:</b> 30 caracteres (60 bytes)</li>
+ *   <li><b>puntaje:</b> entero (4 bytes)</li>
+ *   <li><b>tiempo:</b> long (8 bytes)</li>
+ * </ul>
+ * <p>Total = 72 bytes por registro.</p>
+ * 
+ * <p>El archivo se manipula con {@link RandomAccessFile} permitiendo lectura y 
+ * escritura
+ * directa sin cargar todo el contenido en memoria.</p>
+ * 
+ * @author 
+ * Cristhian Pulecio
  */
 public class AleatorioDAO {
 
+    /** Tamaño máximo permitido para el nombre (en caracteres) */
     private static final int TAM_NOMBRE = 30;
+
+    /** Tamaño total de cada registro en bytes */
     private static final int TAM_REGISTRO = 72;
 
+    /** Archivo físico donde se almacenan los registros */
     private final File archivo;
+
+    /** Acceso aleatorio al archivo */
     private RandomAccessFile raf;
 
+    /**
+     * Constructor del DAO.
+     * 
+     * @param archivoArchivo archivo binario donde se almacenarán los 
+     * registros.
+     */
     public AleatorioDAO(File archivoArchivo) {
         this.archivo = archivoArchivo;
     }
 
+    /** Abre el archivo en modo lectura/escritura ("rw"). */
     private void abrir() throws IOException {
         raf = new RandomAccessFile(archivo, "rw");
     }
 
+    /** Cierra el archivo si está abierto. */
     private void cerrar() throws IOException {
         if (raf != null) raf.close();
     }
 
     /**
-     * Guarda un registro recibiendo valores simples.
+     * Guarda un nuevo registro en el archivo aleatorio con los valores 
+     * indicados.
+     * 
+     * @param nombre nombre del jugador (máx. 30 caracteres).
+     * @param puntaje puntaje obtenido.
+     * @param tiempo tiempo total en milisegundos.
+     * @throws IOException si ocurre un error al escribir en el archivo.
      */
-    public void guardarRegistro(String nombre, int puntaje, long tiempo) throws IOException {
+    public void guardarRegistro(String nombre, int puntaje, long tiempo) 
+            throws IOException {
         try {
             abrir();
+
+            // Calcular posición al final del archivo
             long numReg = raf.length() / TAM_REGISTRO;
             long pos = numReg * TAM_REGISTRO;
             raf.seek(pos);
 
+            // Escribir los datos
             escribirNombreFijo(nombre);
             raf.writeInt(puntaje);
             raf.writeLong(tiempo);
@@ -62,10 +97,17 @@ public class AleatorioDAO {
     }
 
     /**
-     * Guarda un registro recibiendo un Map con:
-     *  - "usuario" : String
-     *  - "puntaje" : Integer
-     *  - "tiempo"  : Long
+     * Guarda un registro tomando los valores desde un {@link Map}.
+     * 
+     * <p>Claves esperadas:</p>
+     * <ul>
+     *   <li>"usuario" → String</li>
+     *   <li>"puntaje" → Integer</li>
+     *   <li>"tiempo"  → Long</li>
+     * </ul>
+     * 
+     * @param datos mapa con la información del jugador.
+     * @throws IOException si ocurre un error al escribir el archivo.
      */
     public void guardarRegistro(Map<String, Object> datos) throws IOException {
         String nombre = (String) datos.get("usuario");
@@ -75,6 +117,10 @@ public class AleatorioDAO {
         guardarRegistro(nombre, puntaje, tiempo);
     }
 
+    /**
+     * Escribe el nombre ajustándolo al tamaño fijo (30 caracteres).
+     * Si es más corto, se completa con espacios.
+     */
     private void escribirNombreFijo(String nombre) throws IOException {
         StringBuilder sb = new StringBuilder(nombre);
 
@@ -87,6 +133,11 @@ public class AleatorioDAO {
         raf.writeChars(sb.toString());
     }
 
+    /**
+     * Lee un nombre de longitud fija (30 caracteres) desde el archivo.
+     * 
+     * @return nombre leído sin espacios sobrantes.
+     */
     private String leerNombreFijo() throws IOException {
         char[] buffer = new char[TAM_NOMBRE];
         for (int i = 0; i < TAM_NOMBRE; i++) {
@@ -96,7 +147,11 @@ public class AleatorioDAO {
     }
 
     /**
-     * Lee todos los registros como una lista de Map<String,Object>.
+     * Lee todos los registros del archivo y los devuelve como una lista de 
+     * mapas.
+     * 
+     * @return lista de registros con claves "usuario", "puntaje" y "tiempo".
+     * @throws IOException si ocurre un error al leer.
      */
     public List<Map<String,Object>> leerTodos() throws IOException {
         List<Map<String,Object>> lista = new ArrayList<>();
@@ -129,19 +184,22 @@ public class AleatorioDAO {
     }
 
     /**
-     * Obtiene el mejor jugador como un Map:
-     *  - mayor puntaje
-     *  - en caso de empate, menor tiempo
+     * Busca el mejor jugador en el archivo.
+     * 
+     * <p>Se selecciona el de mayor puntaje, y en caso de empate, el de menor 
+     * tiempo.</p>
+     * 
+     * @return mapa con los datos del mejor jugador, o {@code null} si no hay 
+     * registros.
+     * @throws IOException si ocurre un error al leer el archivo.
      */
     public Map<String,Object> obtenerMejorJugador() throws IOException {
-
         List<Map<String,Object>> registros = leerTodos();
         if (registros.isEmpty()) return null;
 
         Map<String,Object> mejor = registros.get(0);
 
         for (int i = 1; i < registros.size(); i++) {
-
             Map<String,Object> r = registros.get(i);
 
             int p1 = (int) mejor.get("puntaje");
@@ -158,5 +216,6 @@ public class AleatorioDAO {
         return mejor;
     }
 }
+
 
 
